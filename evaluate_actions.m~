@@ -61,8 +61,8 @@ function [performance_measures,bat_storage] = evaluate_actions(i,bat_soc,bat_eff
         actual_cost(j) = bid_q*acp(j) + grid(j)*grid_rate;
         
         %% Finding reward based on actuals          
-        reward(j) = - wastage(j);
-%         reward(j) = 0;
+%         reward(j) = - wastage(j);
+        reward
         reward2(j) = -actual_cost(j);
         
         if new_bat_soc>bat_soc

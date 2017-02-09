@@ -36,10 +36,14 @@ for k=1:NEpisodes
 %     agent_params.alpha=agent_params.alpha/1.005;
 %     agent_params.epsilon=agent_params.epsilon/1.005;
     
-    bat_eff = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles/bat_eff_lifetime);
-    bat_eff_o = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles_o/bat_eff_lifetime);
-    bat_eff_op = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles_op/bat_eff_lifetime);
-    bat_eff2 = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles2/bat_eff_lifetime);
+%     bat_eff = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles/bat_eff_lifetime);
+%     bat_eff_o = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles_o/bat_eff_lifetime);
+%     bat_eff_op = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles_op/bat_eff_lifetime);
+%     bat_eff2 = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles2/bat_eff_lifetime);
+    bat_eff = bat_eff_init;
+    bat_eff_o = bat_eff_init;
+    bat_eff_op = bat_eff_init;
+    bat_eff2 = bat_eff_init;
     
     i=ceil(rand()*NDays)+30;        % Leaving the first 30 days out of the sample experience
     bat_soc_init = bat_charge_min + rand()*(bat_cap-bat_charge_min);
@@ -70,10 +74,9 @@ for k=1:NEpisodes
     [~,qnext_sa(1:end-1)] = greedy_nn(state(2:end,1:end-1),agent_params.target_weights,env_params);
     reward = performance_measures_agent.reward(k,:)';
     
-    for j = 1:NBlocks
-        q_sa(j) = ann_pred(state(j,:),agent_params.weights);
-        agent_params.weights = ann_train(state(j,:),agent_params.weights,reward(j),q_sa(j),qnext_sa(j),gamma);
-    end
+    q_sa = ann_pred(state,agent_params.weights);
+    agent_params.weights = ann_train(state,agent_params.weights,reward,q_sa,qnext_sa,gamma);
+
     td_error(k) = sum(abs(reward + gamma*qnext_sa - q_sa),1);
     
     if rem(k,update_freq) == 0

@@ -36,10 +36,14 @@ for k=1:NEpisodes
 %     agent_params.alpha=agent_params.alpha/1.005;
 %     agent_params.epsilon=agent_params.epsilon/1.005;
     
+%     bat_eff = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles/bat_eff_lifetime);
+%     bat_eff_o = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles_o/bat_eff_lifetime);
+%     bat_eff_op = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles_op/bat_eff_lifetime);
+%     bat_eff2 = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles2/bat_eff_lifetime);
     bat_eff = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles/bat_eff_lifetime);
-    bat_eff_o = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles_o/bat_eff_lifetime);
-    bat_eff_op = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles_op/bat_eff_lifetime);
-    bat_eff2 = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles2/bat_eff_lifetime);
+%     bat_eff_o = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles_o/bat_eff_lifetime);
+%     bat_eff_op = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles_op/bat_eff_lifetime);
+%     bat_eff2 = max(bat_eff_final,bat_eff_init - (bat_eff_init-bat_eff_final)*num_charge_cycles2/bat_eff_lifetime);
     
     i=ceil(rand()*NDays)+30;        % Leaving the first 30 days out of the sample experience
     bat_soc_init = bat_charge_min + rand()*(bat_cap-bat_charge_min);
@@ -59,7 +63,7 @@ for k=1:NEpisodes
     %% Actual energy usage for agent
     [performance,bat_storage(k,:)] = evaluate_actions(i,bat_soc_init,bat_eff,env_params,energy_data,actions(k,:));
     
-    performance_measures_agent.reward(k,:) = performance.reward;
+    performance_measures_agent.reward(k,:) = performance.reward2;
     performance_measures_agent.wastage(k,:) = performance.wastage;
     performance_measures_agent.bat_charge_cost(k,:) = performance.bat_charge_cost;
     performance_measures_agent.cost(k,:) = performance.actual_cost;
@@ -70,10 +74,9 @@ for k=1:NEpisodes
     [~,qnext_sa(1:end-1)] = greedy_nn(state(2:end,1:end-1),agent_params.target_weights,env_params);
     reward = performance_measures_agent.reward(k,:)';
     
-    for j = 1:NBlocks
-        q_sa(j) = ann_pred(state(j,:),agent_params.weights);
-        agent_params.weights = ann_train(state(j,:),agent_params.weights,reward(j),q_sa(j),qnext_sa(j),gamma);
-    end
+    q_sa = ann_pred(state,agent_params.weights);
+    agent_params.weights = ann_train(state,agent_params.weights,reward,q_sa,qnext_sa,gamma);
+
     td_error(k) = sum(abs(reward + gamma*qnext_sa - q_sa),1);
     
     if rem(k,update_freq) == 0
@@ -90,14 +93,13 @@ for k=1:NEpisodes
     num_charge_cycles2 = num_charge_cycles2 + performance.charge_cycles;
     
     %% Train Linear Agent
-    state = [demand_norm_a(i,:); solar_norm_a(i,:); bat_storage2(k,:)/bat_cap; acp_a(i,:)/max_acp; (1:NBlocks)/NBlocks; actions2(k,:)/max_bid_q]';
     reward = performance_measures_agent2.reward(k,:)';
     
     for j = 1:NBlocks
         if j~=NBlocks
             [~,qnext_sa(j)] = greedy(demand_norm_a(i,j+1),solar_norm_a(i,j+1),bat_storage2(k,j+1)/bat_cap,min_bid_q,max_bid_q, acp_a(i,j+1)/max_acp, (j+1)/NBlocks,tetha);
         end
-        present_state = basisExpansion(demand_norm_a(i,j), solar_norm_a(i,j), bat_storage2(k,j)/bat_cap, actions(k,j)/max_bid_q, acp_a(i,j)/max_acp, j/NBlocks);
+        present_state = basisExpansion(demand_norm_a(i,j), solar_norm_a(i,j), bat_storage2(k,j)/bat_cap, actions2(k,j)/max_bid_q, acp_a(i,j)/max_acp, j/NBlocks);
         q_sa(j)=valuefn(present_state,tetha);
         tetha = tetha + alpha*(reward(j) + gamma*qnext_sa(j) - q_sa(j))*present_state';
     end

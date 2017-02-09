@@ -3,27 +3,33 @@ NDays = 300;                    % No of days of training data
 NEpisodes = 1500;               % No of episodes of training proposed
 min_bid_p = 1;                  % Min Bid price
 max_bid_p = 5;                  % Max Bid price
-min_bid_q = 0;                  % Min Bid quantity
+min_bid_q = 2;                  % Min Bid quantity
 max_bid_q = 30;                 % Max bid quantity
 bat_eff_init = 0.8;             % Combined Effiency of the battery and inverter
-bat_eff_final = 0.2;
+bat_eff_final = 0.8;
 bat_eff_lifetime = 5000;
 bat_cap = 20;                   % Battery Capacity
 bat_charge_rate = 2.5;          % Battery charge or discharge capability / hour
 bat_charge_min = 0.2*bat_cap;   % Minimum soc in the battery
-alpha = 0.2;                    % Learning rate
+alpha = 0.05;                    % Learning rate
 gamma = 1;                      % discount factor
-epsilon = 0.2;                  % Exploration rate
+epsilon = 0.1;                  % Exploration rate
 grid_rate = 6;                  % Grid power unit rate
 bid_p = 0.8*grid_rate;          % Fixed bid rate - 80% of grid rate
 
-n_hid = 18;                     % Number of hidden layer units
-update_freq = 100;
+n_hid1 = 24;                    % Number of hidden layer units
+n_hid2 = 18;
+update_freq = 1;
 
-w1 = randn(6,n_hid);
-b1 = randn(n_hid,1);
-w2 = randn(n_hid,1);
-b2 = randn(1,1);
+x  = sqrt(6/(n_hid1+6));
+w1 = -x+2*x.*rand(6,n_hid1);
+b1 = zeros(n_hid1,1);
+x  = sqrt(6/(n_hid1+n_hid2));
+w2 = -x+2*x.*rand(n_hid1,n_hid2);
+b2 = zeros(n_hid2,1);
+x  = sqrt(6/(n_hid2+1));
+w3 = -x+2*x.*rand(n_hid2,1);
+b3 = zeros(1,1);
 
 numOfVars = 22;                 % Num of State and Action features
 tetha=randn(numOfVars,1);
@@ -70,8 +76,8 @@ bat_params = struct('bat_eff_init',bat_eff_init,'bat_eff_final',bat_eff_final,'b
 env_params = struct('gamma',gamma,'NBlocks',NBlocks,'NDays',NDays,'NEpisodes',NEpisodes,'min_bid_p',min_bid_p,'max_bid_p',max_bid_p,'min_bid_q',min_bid_q,'max_bid_q',max_bid_q,'grid_rate',grid_rate,'bid_p',bid_p);
 [env_params(:).bat_params] = bat_params;
 
-weights = struct('w1',w1,'w2',w2,'b1',b1,'b2',b2);
-agent_params = struct('alpha',alpha,'epsilon',epsilon,'update_freq',update_freq,'n_hid',n_hid);
+weights = struct('w1',w1,'w2',w2,'w3',w3,'b1',b1,'b2',b2,'b3',b3);
+agent_params = struct('alpha',alpha,'epsilon',epsilon,'update_freq',update_freq,'n_hid1',n_hid1,'n_hid2',n_hid2);
 [agent_params(:).weights] = weights;
 [agent_params(:).target_weights] = weights;
 
