@@ -1,8 +1,8 @@
 function new_agent_params = ann_train(state,agent_params,reward,q_sa,qnext_sa,gamma)
     
-    eta1 = 0.001;
-    eta2 = 0.001;
-    eta3 = 0.001;
+    eta1 = 0.01;
+    eta2 = 0.01;
+    eta3 = 0.01;
     
     sq_grads = agent_params.sq_grads;
     w1 = agent_params.weights.w1;
@@ -41,19 +41,12 @@ function new_agent_params = ann_train(state,agent_params,reward,q_sa,qnext_sa,ga
 	h_delta1 = (h_delta2*w2');
 	h_delta1 = h_derivatives1 .* h_delta1;
     
-	w1_deltas = eta1 * (state' * h_delta1)./sqrt(sq_grads.v_w1+1e-8);
-	b1_deltas = eta1 * sum(h_delta1',2)./sqrt(sq_grads.v_b1+1e-8);
-	w2_deltas = eta2 * (h_out1' * h_delta2)./sqrt(sq_grads.v_w2+1e-8);
-	b2_deltas = eta2 * sum(h_delta2',2)./sqrt(sq_grads.v_b2+1e-8);
-	w3_deltas = eta3 * (h_out2' * out_delta)./sqrt(sq_grads.v_w3+1e-8);
-	b3_deltas = eta3 * sum(out_delta',2)./sqrt(sq_grads.v_b3+1e-8);
-    
-	new_w1 = w1 + w1_deltas;
-	new_b1 = b1 + b1_deltas;
-	new_w2 = w2 + w2_deltas;
-	new_b2 = b2 + b2_deltas;
-	new_w3 = w3 + w3_deltas;
-	new_b3 = b3 + b3_deltas;
+	w1_deltas = eta1 * (state' * h_delta1);
+	b1_deltas = eta1 * sum(h_delta1',2);
+	w2_deltas = eta2 * (h_out1' * h_delta2);
+	b2_deltas = eta2 * sum(h_delta2',2);
+	w3_deltas = eta3 * (h_out2' * out_delta);
+	b3_deltas = eta3 * sum(out_delta',2);
     
     sq_grads.v_w1 = 0.9*sq_grads.v_w1 + 0.1*w1_deltas.^2;
     sq_grads.v_w2 = 0.9*sq_grads.v_w2 + 0.1*w2_deltas.^2;
@@ -61,6 +54,13 @@ function new_agent_params = ann_train(state,agent_params,reward,q_sa,qnext_sa,ga
     sq_grads.v_b1 = 0.9*sq_grads.v_b1 + 0.1*b1_deltas.^2;
     sq_grads.v_b2 = 0.9*sq_grads.v_b2 + 0.1*b2_deltas.^2;
     sq_grads.v_b3 = 0.9*sq_grads.v_b3 + 0.1*b3_deltas.^2;
+    
+	new_w1 = w1 + w1_deltas./sqrt(sq_grads.v_w1+1e-8);
+	new_b1 = b1 + b1_deltas./sqrt(sq_grads.v_b1+1e-8);
+	new_w2 = w2 + w2_deltas./sqrt(sq_grads.v_w2+1e-8);
+	new_b2 = b2 + b2_deltas./sqrt(sq_grads.v_b2+1e-8);
+	new_w3 = w3 + w3_deltas./sqrt(sq_grads.v_w3+1e-8);
+	new_b3 = b3 + b3_deltas./sqrt(sq_grads.v_b3+1e-8);
     
     new_weights = struct('w1',new_w1,'w2',new_w2,'w3',new_w3,'b1',new_b1,'b2',new_b2,'b3',new_b3);
     new_agent_params = agent_params;

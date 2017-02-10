@@ -17,9 +17,9 @@ epsilon = 0.1;                  % Exploration rate
 grid_rate = 6;                  % Grid power unit rate
 bid_p = 0.8*grid_rate;          % Fixed bid rate - 80% of grid rate
 
-n_hid1 = 24;                    % Number of hidden layer units
-n_hid2 = 18;
-update_freq = 1;
+n_hid1 = 32;                    % Number of hidden layer units
+n_hid2 = 16;
+update_freq = 100;
 
 x  = sqrt(6/(n_hid1+6));
 w1 = -x+2*x.*rand(6,n_hid1);
