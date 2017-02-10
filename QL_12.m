@@ -75,7 +75,7 @@ for k=1:NEpisodes
     reward = performance_measures_agent.reward(k,:)';
     
     q_sa = ann_pred(state,agent_params.weights);
-    agent_params.weights = ann_train(state,agent_params.weights,reward,q_sa,qnext_sa,gamma);
+    agent_params = ann_train(state,agent_params,reward,q_sa,qnext_sa,gamma);
 
     td_error(k) = sum(abs(reward + gamma*qnext_sa - q_sa),1);
     

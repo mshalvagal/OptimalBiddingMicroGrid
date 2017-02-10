@@ -77,8 +77,10 @@ env_params = struct('gamma',gamma,'NBlocks',NBlocks,'NDays',NDays,'NEpisodes',NE
 [env_params(:).bat_params] = bat_params;
 
 weights = struct('w1',w1,'w2',w2,'w3',w3,'b1',b1,'b2',b2,'b3',b3);
+sq_grads = struct('v_w1',zeros(size(w1)),'v_w2',zeros(size(w2)),'v_w3',zeros(size(w3)),'v_b1',b1,'v_b2',b2,'v_b3',b3);
 agent_params = struct('alpha',alpha,'epsilon',epsilon,'update_freq',update_freq,'n_hid1',n_hid1,'n_hid2',n_hid2);
 [agent_params(:).weights] = weights;
 [agent_params(:).target_weights] = weights;
+[agent_params(:).sq_grads] = sq_grads;
 
 energy_data = struct('demand_a',demand_a,'solar_a',solar_a,'acp_a',acp_a,'max_acp',max_acp,'demand_pred',demand_pred,'solar_pred',solar_pred,'demand_norm',demand_norm,'demand_norm_a',demand_norm_a,'solar_norm',solar_norm,'solar_norm_a',solar_norm_a);
