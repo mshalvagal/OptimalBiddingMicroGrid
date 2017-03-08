@@ -73,10 +73,11 @@ for k=1:NEpisodes
     num_charge_cycles = num_charge_cycles + performance.charge_cycles;
     
     %% Train Agent
-    state = [demand_norm_a(i,:); solar_norm_a(i,:); bat_storage(k,:)/bat_cap; acp_a(i,:)/max_acp; (1:NBlocks)/NBlocks; actions(k,:)/max_bid_q]';
+    state = [repmat(demand_norm_a(i,:),NBlocks,1)'; repmat(solar_norm_a(i,:),NBlocks,1)'; bat_storage(k,:)/bat_cap; repmat(acp_a(i,:),NBlocks,1)'/max_acp; (1:NBlocks)/NBlocks; actions(k,:)/max_bid_q]';
     [~,qnext_sa(1:end-1)] = greedy_nn(state(2:end,1:end-1),agent_params.target_weights,env_params);
     reward = performance_measures_agent.reward(k,:)';
     
+    state = [repmat(demand_norm(i,:),NBlocks,1)'; repmat(solar_norm(i,:),NBlocks,1)'; bat_storage(k,:)/bat_cap; repmat(acp_a(i,:),NBlocks,1)'/max_acp; (1:NBlocks)/NBlocks; actions(k,:)/max_bid_q]';
     q_sa = ann_pred(state,agent_params.weights);
     agent_params = ann_train(state,agent_params,reward,q_sa,qnext_sa,gamma);
 
