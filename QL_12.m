@@ -34,6 +34,8 @@ performance_measures_agent_la = performance_measures_agent;
 
 test_idx = ceil(rand()*NDays)+30;
 test_cost = [];
+test_reward = [];
+test_cost_la = [];
 
 for k=1:NEpisodes
 %     agent_params.alpha=agent_params.alpha/1.005;
@@ -137,6 +139,11 @@ for k=1:NEpisodes
         test_actions = agent_sim(test_idx,bat_soc_init,env_params,agent_params,energy_data);
         [performance,~] = evaluate_actions(test_idx,bat_soc_init,bat_eff,env_params,energy_data,test_actions);
         test_cost = [test_cost; sum(performance.actual_cost,2)];
+        test_reward = [test_reward; sum(performance.reward,2)];
+                
+        test_actions = agent_sim2(test_idx,bat_soc_init,env_params,agent_params,energy_data,tetha);
+        [performance,~] = evaluate_actions(test_idx,bat_soc_init,bat_eff,env_params,energy_data,test_actions);
+        test_cost_la = [test_cost_la; sum(performance.actual_cost,2)];
     end
 end
 
@@ -147,7 +154,13 @@ figure()
 plot(td_error);
 
 figure()
-plot(test_cost)
+plot(test_cost);
+hold on;
+plot(test_cost_la);
+legend('nn','linear')
+
+figure()
+plot(test_reward);
 
 Error = mean(mean((cost_without_battery-performance_measures_agent.cost),1))
 Error = mean(mean((cost_without_battery-performance_measures_agent_la.cost),1))
