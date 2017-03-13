@@ -32,7 +32,8 @@ performance_measures_oracle = performance_measures_agent;
 performance_measures_oracle2 = performance_measures_agent;
 performance_measures_agent_la = performance_measures_agent;
 
-test_idx = ceil(rand()*NDays)+30;
+% test_idx = ceil(rand()*NDays)+30;
+test_idx = 100;
 test_cost = [];
 test_reward = [];
 test_cost_la = [];
@@ -51,7 +52,9 @@ for k=1:NEpisodes
     bat_eff_la = bat_eff_init;
     
     i=ceil(rand()*NDays)+30;        % Leaving the first 30 days out of the sample experience
-    bat_soc_init = bat_charge_min + rand()*(bat_cap-bat_charge_min);
+    i = 100;
+%    bat_soc_init = bat_charge_min + rand()*(bat_cap-bat_charge_min);
+    bat_soc_init = 0.5*bat_cap;
     
     %% Agent sim
     actions(k,:) = agent_sim(i,bat_soc_init,env_params,agent_params,energy_data);
@@ -86,6 +89,9 @@ for k=1:NEpisodes
     
     if rem(k,update_freq) == 0
         agent_params.target_weights = agent_params.weights;
+        if agent_params.epsilon > 0
+        agent_params.epsilon = max(0,agent_params.epsilon - 0.02);
+        end
     end
      
     %% Actual energy usage for linear agent

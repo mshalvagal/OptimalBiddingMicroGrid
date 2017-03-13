@@ -1,6 +1,6 @@
 NBlocks = 24;                   % No of bidding blocks in a day
 NDays = 300;                    % No of days of training data
-NEpisodes = 1500;               % No of episodes of training proposed
+NEpisodes = 3000;               % No of episodes of training proposed
 min_bid_p = 1;                  % Min Bid price
 max_bid_p = 5;                  % Max Bid price
 min_bid_q = 2;                  % Min Bid quantity
@@ -13,7 +13,7 @@ bat_charge_rate = 2.5;          % Battery charge or discharge capability / hour
 bat_charge_min = 0.2*bat_cap;   % Minimum soc in the battery
 alpha = 0.05;                    % Learning rate
 gamma = 1;                      % discount factor
-epsilon = 0.1;                  % Exploration rate
+epsilon = 0.5;                  % Exploration rate
 grid_rate = 6;                  % Grid power unit rate
 bid_p = 0.8*grid_rate;          % Fixed bid rate - 80% of grid rate
 
