@@ -10,10 +10,13 @@ function actions = agent_sim(i,bat_soc,env_params,agent_params,energy_data)
     
     demand_pred = energy_data.demand_pred(i,:);
     solar_pred = energy_data.solar_pred(i,:);
-	mean_acp = mean(energy_data.acp_a(i-30:i-1,:),1);
+	mean_acp = [mean(energy_data.acp_a(i-30:i-1,:),1), zeros(1,3)];
+    
+    demand = [energy_data.demand_norm(i,:), zeros(1,3)];
+    solar = [energy_data.solar_norm(i,:), zeros(1,3)];
 
     for j = 1:NBlocks
-        state = [energy_data.demand_norm(i,:),energy_data.solar_norm(i,:),bat_soc/bat_cap,mean_acp/energy_data.max_acp,j/NBlocks];
+        state = [demand(j:j+3),solar(j:j+3),bat_soc/bat_cap,mean_acp(j:j+3)/energy_data.max_acp,j/NBlocks];
         [bid_q,~] = egreedy_nn(state,agent_params,env_params);
         actions(j)=bid_q;
         % Next State based on predictions

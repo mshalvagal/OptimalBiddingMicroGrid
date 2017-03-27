@@ -21,8 +21,8 @@ n_hid1 = 32;                    % Number of hidden layer units
 n_hid2 = 16;
 update_freq = 100;
 
-x  = sqrt(6/(n_hid1+75));
-w1 = -x+2*x.*rand(75,n_hid1);
+x  = sqrt(6/(n_hid1+15));
+w1 = -x+2*x.*rand(15,n_hid1);
 b1 = zeros(n_hid1,1);
 x  = sqrt(6/(n_hid1+n_hid2));
 w2 = -x+2*x.*rand(n_hid1,n_hid2);

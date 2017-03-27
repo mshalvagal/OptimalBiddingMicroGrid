@@ -74,12 +74,18 @@ for k=1:NEpisodes
     performance_measures_agent.cost(k,:) = performance.actual_cost;
     num_charge_cycles = num_charge_cycles + performance.charge_cycles;
     
+    demand_state = [demand_norm_a(i,:), zeros(1,3)];
+    solar_state = [solar_norm_a(i,:), zeros(1,3)];
+	acp_state = [acp_a(i,:), zeros(1,3)];
+    
     %% Train Agent
-    state = [repmat(demand_norm_a(i,:),NBlocks,1)'; repmat(solar_norm_a(i,:),NBlocks,1)'; bat_storage(k,:)/bat_cap; repmat(acp_a(i,:),NBlocks,1)'/max_acp; (1:NBlocks)/NBlocks; actions(k,:)/max_bid_q]';
+    state = zeros(NBlocks,size(agent_params.weights.w1,1));
+    for j = 1:NBlocks
+        state(j,:) = [demand_state(j:j+3),solar_state(j:j+3),bat_storage(k,j)/bat_cap,acp_state(j:j+3)/energy_data.max_acp,j/NBlocks, actions(k,j)/max_bid_q];
+    end
     [~,qnext_sa(1:end-1)] = greedy_nn(state(2:end,1:end-1),agent_params.target_weights,env_params);
     reward = performance_measures_agent.reward(k,:)';
     
-    state = [repmat(demand_norm(i,:),NBlocks,1)'; repmat(solar_norm(i,:),NBlocks,1)'; bat_storage(k,:)/bat_cap; repmat(acp_a(i,:),NBlocks,1)'/max_acp; (1:NBlocks)/NBlocks; actions(k,:)/max_bid_q]';
     q_sa = ann_pred(state,agent_params.weights);
     agent_params = ann_train(state,agent_params,reward,q_sa,qnext_sa,gamma);
 
